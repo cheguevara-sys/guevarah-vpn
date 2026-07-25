@@ -20,44 +20,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Create gradle wrapper directory
-        run: mkdir -p gradle/wrapper
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Download gradle-wrapper.jar with verification
+      - name: Build with Gradle (no wrapper)
         run: |
-          echo "Downloading gradle-wrapper.jar..."
-          curl -f -L -o gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/master/gradle/wrapper/gradle-wrapper.jar
-          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
-            echo "Download failed, trying alternative URL..."
-            wget -O gradle/wrapper/gradle-wrapper.jar https://services.gradle.org/distributions/gradle-8.0-wrapper.jar
-          fi
-          ls -lh gradle/wrapper/gradle-wrapper.jar
-          file gradle/wrapper/gradle-wrapper.jar
-
-      - name: Create gradle wrapper properties
-        run: |
-          cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
-          distributionBase=GRADLE_USER_HOME
-          distributionPath=wrapper/dists
-          distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip
-          networkTimeout=10000
-          zipStoreBase=GRADLE_USER_HOME
-          zipStorePath=wrapper/dists
-          EOF
-          cat gradle/wrapper/gradle-wrapper.properties
-
-      - name: Make gradlew executable
-        run: |
-          chmod +x gradlew
-          file gradlew
-
-      - name: Verify gradle wrapper
-        run: |
-          ls -la gradle/wrapper/
-          java -version
-
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace -v
+          gradle --version
+          gradle clean build assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
