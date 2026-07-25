@@ -20,6 +20,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Generate Gradle Wrapper if missing
+        run: |
+          if [ ! -f "gradle/wrapper/gradle-wrapper.jar" ]; then
+            mkdir -p gradle/wrapper
+            echo "Downloading gradle-wrapper.jar..."
+            curl -L https://github.com/gradle/gradle/releases/download/v8.0/gradle-8.0-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
+          fi
+
       # Configured to build cleanly even if GitHub's cache service fails
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
