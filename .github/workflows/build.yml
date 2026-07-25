@@ -25,20 +25,28 @@ jobs:
 
       - name: Download gradle-wrapper.jar
         run: |
-          curl -L -o gradle/wrapper/gradle-wrapper.jar \
-            https://github.com/gradle/gradle/releases/download/v8.0/gradle-8.0-wrapper.jar
+          echo "Downloading gradle-wrapper.jar..."
+          curl -L https://github.com/gradle/gradle/releases/download/v8.0/gradle-8.0-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
+          ls -la gradle/wrapper/
+
+      - name: Download gradle wrapper properties
+        run: |
+          cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
+          distributionBase=GRADLE_USER_HOME
+          distributionPath=wrapper/dists
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip
+          networkTimeout=10000
+          zipStoreBase=GRADLE_USER_HOME
+          zipStorePath=wrapper/dists
+          EOF
 
       - name: Make gradlew executable
-        run: chmod +x gradlew
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          cache-disabled: false
-          cache-read-only: false
+        run: |
+          chmod +x gradlew
+          ls -la gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
