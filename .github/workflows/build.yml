@@ -23,13 +23,18 @@ jobs:
       - name: Create gradle wrapper directory
         run: mkdir -p gradle/wrapper
 
-      - name: Download gradle-wrapper.jar
+      - name: Download gradle-wrapper.jar with verification
         run: |
           echo "Downloading gradle-wrapper.jar..."
-          curl -L https://github.com/gradle/gradle/releases/download/v8.0/gradle-8.0-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
-          ls -la gradle/wrapper/
+          curl -f -L -o gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/master/gradle/wrapper/gradle-wrapper.jar
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "Download failed, trying alternative URL..."
+            wget -O gradle/wrapper/gradle-wrapper.jar https://services.gradle.org/distributions/gradle-8.0-wrapper.jar
+          fi
+          ls -lh gradle/wrapper/gradle-wrapper.jar
+          file gradle/wrapper/gradle-wrapper.jar
 
-      - name: Download gradle wrapper properties
+      - name: Create gradle wrapper properties
         run: |
           cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
           distributionBase=GRADLE_USER_HOME
@@ -39,14 +44,20 @@ jobs:
           zipStoreBase=GRADLE_USER_HOME
           zipStorePath=wrapper/dists
           EOF
+          cat gradle/wrapper/gradle-wrapper.properties
 
       - name: Make gradlew executable
         run: |
           chmod +x gradlew
-          ls -la gradlew
+          file gradlew
+
+      - name: Verify gradle wrapper
+        run: |
+          ls -la gradle/wrapper/
+          java -version
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace -v
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
