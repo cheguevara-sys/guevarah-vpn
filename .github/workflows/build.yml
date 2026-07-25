@@ -23,10 +23,10 @@ jobs:
       - name: Install Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build with Gradle (no wrapper)
+      - name: Build with Gradle (with stacktrace)
         run: |
           gradle --version
-          gradle clean build assembleDebug
+          gradle clean build assembleDebug --stacktrace --info
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
